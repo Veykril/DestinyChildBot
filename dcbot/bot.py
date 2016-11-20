@@ -2,8 +2,6 @@ import asyncio
 
 from dcbot.config import Config
 from dcbot.jsonhelper import JSONHelper
-from dcbot.child import Element
-from dcbot.child import Role
 from dcbot.constants import *
 
 import discord
@@ -33,14 +31,14 @@ class DestinyChildBot(discord.Client):
 
         content = message.content.strip()  # type: str
 
-        if content.startswith(self.config.command_trigger):  # THIS WILL LOOK UGLY AF since it is just a temporary thing for adding chidlren to the json file
+        if content.startswith(self.config.command_trigger):  # command parser
             command, *args = content.split()
             command = command[len(self.config.command_trigger):].lower().strip()
 
             cmd_func = getattr(self, 'c_{}'.format(command))
 
-            if command == "create_child_entry":
-                func_kwargs = {}
+            if command == "create_child_entry":  # THIS WILL LOOK UGLY AF since it is just a temporary thing for adding chidlren to the json file
+                func_kwargs = dict()
                 func_kwargs[JSON_IDX] = int(args[0])
                 func_kwargs[JSON_ID] = int(args[1])
                 func_kwargs[JSON_INVEN_ID] = int(args[2])
@@ -76,15 +74,19 @@ class DestinyChildBot(discord.Client):
             await self.send_childinfo(message.channel, word)
 
     async def send_childinfo(self, dest, identifier):
-        msg_template = "**{} - {}**[{}:star:]\nRole: {} | Element: {}\nHP: {}\nAttack: {}\nAgility: {}\nDefense: {}\nCritical: {}\n{}{}_i.png"
         c = self.json.get_child_by_identifier(identifier)
         if c is not None:
             if self.config.debug:
-                return await self.send_message(dest, msg_template.format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY],
-                                                                         Role(c[JSON_ROLE]).name, Element(c[JSON_ELEMENT]).name, c[JSON_STAT_HP],
-                                                                         c[JSON_STAT_ATK], c[JSON_STAT_AGI],
-                                                                         c[JSON_STAT_DEF], c[JSON_STAT_CRIT],
-                                                                         INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
+                emb = discord.Embed(type='rich')
+                emb.set_author(name="{} - {}[{}:star:]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]),
+                               icon_url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
+                emb.description = "Role: {} | Element: {}".format(Role(c[JSON_ROLE]).name, Element(c[JSON_ELEMENT]).name)
+                emb.add_field(name='HP', value=c[JSON_STAT_HP], inline=False)
+                emb.add_field(name='Attack', value=c[JSON_STAT_ATK], inline=False)
+                emb.add_field(name='Agility', value=c[JSON_STAT_AGI], inline=False)
+                emb.add_field(name='Defense', value=c[JSON_STAT_DEF], inline=False)
+                emb.add_field(name='Critical', value=c[JSON_STAT_CRIT], inline=False)
+                return await self.send_message(dest, embed=emb)
             return await self.send_message(dest, c)
 
     async def c_create_child_entry(self, **kwargs):

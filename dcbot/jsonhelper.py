@@ -31,7 +31,7 @@ class JSONHelper(object):
             pass
         return None
 
-    def add_entry(self, child_info):
+    def add_entry(self, child_info):  # temporary
         self.children.append(child_info)
         self.save_children_file()
 

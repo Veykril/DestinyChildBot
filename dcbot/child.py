@@ -1,27 +1,4 @@
 from dcbot.constants import *
-from enum import Enum
-
-
-class Element(Enum):
-    water = 1
-    fire = 2
-    forest = 3
-    light = 4
-    dark = 5
-    unknown1 = 6
-    unknown2 = 7
-    unknown3 = 8
-
-
-class Role(Enum):
-    attack = 1
-    defense = 2
-    heal = 3
-    restrain = 4
-    support =5
-    exp = 6
-    evolution = 7
-    unknown1 = 8
 
 
 class Child(object):
