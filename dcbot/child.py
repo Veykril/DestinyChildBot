@@ -25,7 +25,8 @@ class Role(Enum):
 
 
 class Child(object):
-    """Should probably rename the class to something else cause child/parent relationship in programming etc
+    """ UNUSED ATM
+    Should probably rename the class to something else cause child/parent relationship in programming etc
                         int,int,int,string,string,int,enum/int,enum/int,int,int,int,int,int"""
     """
     def __init__(self, idx, id, inven_id, name, en_name, rarity, element, role, stat_hp, stat_atk, stat_def, stat_agi, stat_crit):

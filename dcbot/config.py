@@ -12,3 +12,4 @@ class Config:
         self.command_trigger = config.get('Commands', 'CommandTrigger', fallback=None)
         self.lextender = config.get('Commands', 'L-Extender', fallback=None)
         self.rextender = config.get('Commands', 'R-Extender', fallback=None)
+        self.debug = bool(config.get('Debug', 'debug', fallback=None))

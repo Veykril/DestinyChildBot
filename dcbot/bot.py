@@ -2,7 +2,6 @@ import asyncio
 
 from dcbot.config import Config
 from dcbot.jsonhelper import JSONHelper
-from dcbot.child import Child
 from dcbot.child import Element
 from dcbot.child import Role
 from dcbot.constants import *
@@ -29,8 +28,6 @@ class DestinyChildBot(discord.Client):
 
     async def on_message(self, message):
         print("[{}]@{}:{}".format(message.server, message.channel, message.content))
-        if message.content == "logout":
-            await self.logout()
         if message.author == self.user:
             return
 
@@ -58,6 +55,8 @@ class DestinyChildBot(discord.Client):
                 func_kwargs[JSON_STAT_AGI] = int(args[11])
                 func_kwargs[JSON_STAT_CRIT] = int(args[12])
                 await cmd_func(**func_kwargs)
+                return
+            await cmd_func()
 
         tindex = content.find(self.config.trigger)
         if tindex == -1:
@@ -67,16 +66,36 @@ class DestinyChildBot(discord.Client):
             rex = content.find(self.config.rextender, lex+1)
             word = content[lex+1: rex]
         else:
-            word = content[tindex+1: content.find(' ', tindex)]
+            end = content.find(' ', tindex)
+            word = content[tindex+1: None if end == -1 else end]
         print("Found a trigger;", word)
         try:  # check if it's the id as keyword
-            await self.send_childinfo(message.channel, int(word))
-        except:
+            as_int = int(word)
+            await self.send_childinfo(message.channel, as_int)
+        except ValueError:
             await self.send_childinfo(message.channel, word)
 
     async def send_childinfo(self, dest, identifier):
-        return await self.send_message(dest, self.json.get_child_by_identifier(identifier))
+        msg_template = "**{} - {}**[{}:star:]\nRole: {} | Element: {}\nHP: {}\nAttack: {}\nAgility: {}\nDefense: {}\nCritical: {}\n{}{}_i.png"
+        c = self.json.get_child_by_identifier(identifier)
+        if c is not None:
+            if self.config.debug:
+                return await self.send_message(dest, msg_template.format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY],
+                                                                         Role(c[JSON_ROLE]).name, Element(c[JSON_ELEMENT]).name, c[JSON_STAT_HP],
+                                                                         c[JSON_STAT_ATK], c[JSON_STAT_AGI],
+                                                                         c[JSON_STAT_DEF], c[JSON_STAT_CRIT],
+                                                                         INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
+            return await self.send_message(dest, c)
 
     async def c_create_child_entry(self, **kwargs):
-        c = Child(**kwargs)
-        self.json.add_entry(c)
+        self.json.add_entry(kwargs)
+
+    async def c_reload_json(self):
+        self.json = JSONHelper("resources/children.json")
+
+    async def c_debug(self):
+        self.config.debug = not self.config.debug
+        print("Debug toggled to", self.config.debug)
+
+    async def c_logout(self):
+        self.logout()

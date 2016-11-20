@@ -1,7 +1,6 @@
 import json
 import traceback
 
-from dcbot import child
 from dcbot.constants import *
 
 class JSONHelper(object):
@@ -32,8 +31,8 @@ class JSONHelper(object):
             pass
         return None
 
-    def add_entry(self, c: child.Child):
-        self.children.append(c.toJSON())
+    def add_entry(self, child_info):
+        self.children.append(child_info)
         self.save_children_file()
 
     def save_children_file(self):
