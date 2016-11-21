@@ -75,17 +75,21 @@ class DestinyChildBot(discord.Client):
 
     async def send_childinfo(self, dest, identifier):
         c = self.json.get_child_by_identifier(identifier)
+        print(self.config.debug)
+        ele_color = {Element.fire.value: 0xFF331C, Element.dark.value: 0x7C4E98, Element.light.value: 0xFFFFFF,
+                     Element.forest.value: 0x00FF00, Element.water.value: 0x2691E4}
         if c is not None:
-            if self.config.debug:
-                emb = discord.Embed(type='rich')
-                emb.set_author(name="{} - {}[{}:star:]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]),
-                               icon_url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
-                emb.description = "Role: {} | Element: {}".format(Role(c[JSON_ROLE]).name, Element(c[JSON_ELEMENT]).name)
+            if not self.config.debug:
+                emb = discord.Embed(type='rich', colour=ele_color[c[JSON_ELEMENT]])
+                emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
+                emb.description = "Role: {} | Element: {}".format(Role(c[JSON_ROLE]).name.capitalize()
+                                                                  , Element(c[JSON_ELEMENT]).name.capitalize())
                 emb.add_field(name='HP', value=c[JSON_STAT_HP], inline=False)
                 emb.add_field(name='Attack', value=c[JSON_STAT_ATK], inline=False)
                 emb.add_field(name='Agility', value=c[JSON_STAT_AGI], inline=False)
                 emb.add_field(name='Defense', value=c[JSON_STAT_DEF], inline=False)
                 emb.add_field(name='Critical', value=c[JSON_STAT_CRIT], inline=False)
+                emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
                 return await self.send_message(dest, embed=emb)
             return await self.send_message(dest, c)
 

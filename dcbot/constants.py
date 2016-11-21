@@ -20,6 +20,22 @@ JSON_STAT_DEF = "stat_def"
 JSON_STAT_AGI = "stat_agi"
 JSON_STAT_CRIT = "stat_crit"
 
+JSON_SKILL1 = "skill1"
+JSON_SKILL2 = "skill2"
+JSON_SKILL3 = "skill3"
+JSON_SKILL4 = "skill4"
+JSON_SKILL5 = "skill5"
+JSON_SKILL_DESC1 = "skill_desc1"
+JSON_SKILL_DESC2 = "skill_desc2"
+JSON_SKILL_DESC3 = "skill_desc3"
+JSON_SKILL_DESC4 = "skill_desc4"
+JSON_SKILL_DESC5 = "skill_desc5"
+JSON_SKILL_DESC1_EN = "skill_desc1_en"
+JSON_SKILL_DESC2_EN = "skill_desc2_en"
+JSON_SKILL_DESC3_EN = "skill_desc3_en"
+JSON_SKILL_DESC4_EN = "skill_desc4_en"
+JSON_SKILL_DESC5_EN = "skill_desc5_en"
+
 
 class Element(Enum):
     water = 1

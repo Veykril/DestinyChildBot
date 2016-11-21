@@ -3,6 +3,7 @@ import traceback
 
 from dcbot.constants import *
 
+
 class JSONHelper(object):
     def __init__(self, children_json_file, json_path="resources/"):
         self.children_file = children_json_file
