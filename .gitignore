@@ -3,3 +3,4 @@ Thumbs.db
 __pycache__/
 config/config.ini
 resources/
+config/permissions.json

@@ -4,10 +4,9 @@ import traceback
 from dcbot.constants import *
 
 
-class JSONHelper(object):
-    def __init__(self, children_json_file, json_path="resources/"):
+class ChildrenManager(object):
+    def __init__(self, children_json_file='resources/children.json'):
         self.children_file = children_json_file
-        self.path = json_path
 
         self.children = []
         try:

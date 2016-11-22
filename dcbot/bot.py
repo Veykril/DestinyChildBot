@@ -1,8 +1,11 @@
 import asyncio
 
 from dcbot.config import Config
-from dcbot.jsonhelper import JSONHelper
+from dcbot.children_manager import ChildrenManager
+from dcbot.permission_manager import PermissionManager
 from dcbot.constants import *
+
+from functools import wraps
 
 import discord
 
@@ -12,7 +15,8 @@ import traceback
 class DestinyChildBot(discord.Client):
     def __init__(self, config_file='Config/config.ini'):
         self.config = Config(config_file)
-        self.json = JSONHelper("resources/children.json")
+        self.children_mngr = ChildrenManager("resources/children.json")
+        self.perm_mngr = PermissionManager()
         super().__init__()
 
     def run(self):
@@ -35,9 +39,16 @@ class DestinyChildBot(discord.Client):
             command, *args = content.split()
             command = command[len(self.config.command_trigger):].lower().strip()
 
-            cmd_func = getattr(self, 'c_{}'.format(command))
+            try:
+                cmd_func = getattr(self, 'c_{}'.format(command))
 
-            await cmd_func()
+                func_kwargs = dict()
+                func_kwargs['message'] = message
+                func_kwargs['author'] = message.author
+
+                await cmd_func(**func_kwargs)
+            except AttributeError:
+                pass
 
         tindex = content.find(self.config.trigger)
         if tindex == -1:
@@ -57,7 +68,7 @@ class DestinyChildBot(discord.Client):
             await self.send_childinfo(message.channel, word)
 
     async def send_childinfo(self, dest, identifier):
-        c = self.json.get_child_by_identifier(identifier)
+        c = self.children_mngr.get_child_by_identifier(identifier)
         ele_color = {Attribute.fire.value: 0xFF331C, Attribute.dark.value: 0x7C4E98, Attribute.light.value: 0xFFFFFF,
                      Attribute.forest.value: 0x00FF00, Attribute.water.value: 0x2691E4}
         if c is not None:
@@ -75,15 +86,19 @@ class DestinyChildBot(discord.Client):
                 return await self.send_message(dest, embed=emb)
             return await self.send_message(dest, c)
 
-    async def c_create_child_entry(self, **kwargs):
-        self.json.add_entry(kwargs)
+    def superuser(func):
+        @wraps(func)
+        async def wrapper(self, **kwargs):
+            if self.perm_mngr.is_superuser(kwargs['author'].id):
+                return await func(self, **kwargs)
+            return  # skip if not in superuser list
+        return wrapper
 
-    async def c_reload_json(self):
-        self.json = JSONHelper("resources/children.json")
+    @superuser
+    async def c_reload_json(self, **kwargs):
+        self.children_mngr = ChildrenManager("resources/children.json")
 
-    async def c_debug(self):
+    @superuser
+    async def c_debug(self, **kwargs):
         self.config.debug = not self.config.debug
         print("Debug toggled to", self.config.debug)
-
-    async def c_logout(self):
-        self.logout()
