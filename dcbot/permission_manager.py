@@ -3,7 +3,7 @@ import traceback
 
 
 class PermissionManager(object):
-    def __init__(self, permissions_file='config/permissions.json'):
+    def __init__(self, permissions_file='resources/permissions.json'):
         self.permissions_file = permissions_file
         try:
             with open(self.permissions_file, 'r') as f:
