@@ -16,7 +16,7 @@ class PermissionManager(object):
         return user_id in self.permissions
 
     def add_superuser(self, user_id):
-        self.permissions.append(user_id)
+        self.permissions.append(str(user_id))
         self.save_children_file()
 
     def save_children_file(self):

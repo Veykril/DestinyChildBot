@@ -11,7 +11,7 @@ import traceback
 
 
 class DestinyChildBot(discord.Client):
-    ele_color = {Attribute.fire.value: 0xFF331C, Attribute.dark.value: 0x7C4E98, Attribute.light.value: 0xFFFFFF,
+    ele_color = {Attribute.fire.value: 0xFF331C, Attribute.dark.value: 0x7C4E98, Attribute.light.value: 0xC8C270,
                  Attribute.forest.value: 0x00FF00, Attribute.water.value: 0x2691E4}
 
     def __init__(self, config_file='Config/config.ini'):
@@ -37,7 +37,7 @@ class DestinyChildBot(discord.Client):
     async def on_ready(self):
         print("Successfully connected!")
 
-    async def on_message(self, message):
+    async def on_message(self, message):  # todo check for <child> in arguments of commands
         print("[{}]@{}:{}".format(message.server, message.channel, message.content))
         if message.author == self.user:
             return
@@ -45,13 +45,12 @@ class DestinyChildBot(discord.Client):
         content = message.content.strip()  # type: str
 
         if content.startswith(self.config.command_trigger):  # command parser
-            command = content[len(self.config.command_trigger):content.find('(')]
-            args = content[len(self.config.command_trigger)+len(command)+1:-1].split(",")
+            command, *args = content[len(self.config.command_trigger):].split()
             for i in range(len(args)):
                 try:
                     args[i] = int(args[i])
                 except ValueError:
-                    args[i] = args[i].strip()
+                    pass
 
             try:  # TO-DO: Make the command system nicer
                 cmd_func = getattr(self, 'c_{}'.format(command))
@@ -126,6 +125,8 @@ class DestinyChildBot(discord.Client):
             emb.add_field(name='Critical', value=c[JSON_STAT_CRIT], inline=False)
             emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
             await self.send_message(kwargs['message'].channel, embed=emb)
+        else:
+            await self.send_message(kwargs['message'].channel, "Didn't recognize child name: {}".format(kwargs['args'][0]))
 
     async def c_skills(self, **kwargs):
         c = self.children_mngr.get_child_by_identifier(kwargs['args'][0])
