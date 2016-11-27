@@ -15,7 +15,7 @@ class DestinyChildBot(discord.Client):
     ele_color = {Attribute.fire.value: 0xFF331C, Attribute.dark.value: 0x7C4E98, Attribute.light.value: 0xC8C270,
                  Attribute.forest.value: 0x00FF00, Attribute.water.value: 0x2691E4}
 
-    def __init__(self, config_file='Config/config.ini'):
+    def __init__(self, config_file='config/config.ini'):
         self.config = Config(config_file)
         self.children_mngr = ChildrenManager("resources/children.json")
         self.perm_mngr = PermissionManager()
@@ -126,23 +126,32 @@ class DestinyChildBot(discord.Client):
         else:
             await self.send_message(message.channel, "Couldn't add nickname to child")
 
+    @superuser
+    async def c_rnickname(self, message, args):
+        if len(args) == 1:
+            self.children_mngr.remove_nickname(args[0])
+        else:
+            await self.send_message(message.channel, "Couldn't add nickname to child")
+
     async def c_info(self, message, children):
         for c in children:
-            emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
-            emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
-            emb.add_field(name="Role", value=Role(c[JSON_ROLE_ID]).name.capitalize(), inline=True)
-            emb.add_field(name="Attribute", value=Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
-            emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
-            await self.send_message(message.channel, embed=emb)
+            if c:
+                emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
+                emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
+                emb.add_field(name="Role", value=Role(c[JSON_ROLE_ID]).name.capitalize(), inline=True)
+                emb.add_field(name="Attribute", value=Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
+                emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
+                await self.send_message(message.channel, embed=emb)
 
     async def c_skills(self, message, children):
         for c in children:
-            emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
-            emb.set_author(name="{} - {}'s skills".format(c[JSON_NAME], c[JSON_EN_NAME]))
-            emb.add_field(name="Basic Attack", value=c[JSON_SKILL1_DESC_EN] or c[JSON_SKILL1_DESC], inline=False)
-            emb.add_field(name="Tap", value=c[JSON_SKILL2_DESC_EN] or c[JSON_SKILL2_DESC], inline=False)
-            emb.add_field(name="Slide", value=c[JSON_SKILL3_DESC_EN] or c[JSON_SKILL3_DESC], inline=False)
-            emb.add_field(name="Drive", value=c[JSON_SKILL4_DESC_EN] or c[JSON_SKILL4_DESC], inline=False)
-            emb.add_field(name="Leader", value=c[JSON_SKILL5_DESC_EN] or c[JSON_SKILL5_DESC], inline=False)
-            emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
-            await self.send_message(message.channel, embed=emb)
+            if c:
+                emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
+                emb.set_author(name="{} - {}'s skills".format(c[JSON_NAME], c[JSON_EN_NAME]))
+                emb.add_field(name="Basic Attack", value=c[JSON_SKILL1_DESC_EN] or c[JSON_SKILL1_DESC], inline=False)
+                emb.add_field(name="Tap", value=c[JSON_SKILL2_DESC_EN] or c[JSON_SKILL2_DESC], inline=False)
+                emb.add_field(name="Slide", value=c[JSON_SKILL3_DESC_EN] or c[JSON_SKILL3_DESC], inline=False)
+                emb.add_field(name="Drive", value=c[JSON_SKILL4_DESC_EN] or c[JSON_SKILL4_DESC], inline=False)
+                emb.add_field(name="Leader", value=c[JSON_SKILL5_DESC_EN] or c[JSON_SKILL5_DESC], inline=False)
+                emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
+                await self.send_message(message.channel, embed=emb)

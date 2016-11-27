@@ -54,6 +54,15 @@ class ChildrenManager(object):
             return True
         return False
 
+    def remove_nickname(self, nickname):
+        try:
+            del self.children_map[nickname.lower()]
+            del self.nicknames[nickname.lower()]
+            self.save_nicknames_file()
+        except Exception:
+            pass
+
+
     def save_nicknames_file(self):
         try:
             with open(self.nicknames_file, 'w', encoding="utf8") as f:
