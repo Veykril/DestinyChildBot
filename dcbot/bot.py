@@ -8,6 +8,7 @@ from functools import wraps
 import discord
 import inspect
 import traceback
+import sys
 
 
 class DestinyChildBot(discord.Client):
@@ -37,8 +38,9 @@ class DestinyChildBot(discord.Client):
     async def on_ready(self):
         print("Successfully connected!")
 
-    async def on_message(self, message):  # todo check for <child> in arguments of commands
-        print("[{}]@{}:{}".format(message.server, message.channel, message.content))
+    async def on_message(self, message):
+        print("[{}]@{}:{}".format(message.server, message.channel, message.content)
+              .encode(sys.stdout.encoding, 'ignore').decode(sys.stdout.encoding))
         if message.author == self.user:
             return
 
@@ -107,15 +109,6 @@ class DestinyChildBot(discord.Client):
                 await self.send_message(message.channel, "```{}```".format(traceback.format_exc()))
             return
 
-        for child in children:
-            if child:
-                emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[child[JSON_ATTRIBUTE_ID]])
-                emb.set_author(name="{} - {}[{}⭐]".format(child[JSON_NAME], child[JSON_EN_NAME], child[JSON_RARITY]))
-                emb.add_field(name="Role", value=Role(child[JSON_ROLE_ID]).name.capitalize(), inline=True)
-                emb.add_field(name="Attribute", value=Attribute(child[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
-                emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, child[JSON_INVEN_ID]))
-                await self.send_message(message.channel, embed=emb)
-
     @superuser
     async def c_debug(self, message):
         self.config.debug = not self.config.debug
@@ -133,23 +126,16 @@ class DestinyChildBot(discord.Client):
             await self.send_message(message.channel, "Couldn't add nickname to child")
 
     async def c_info(self, message, children):
-        if children:
-            c = children[0]
+        for c in children:
             emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
             emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
-            emb.description = "Role: {} | Element: {}".format(Role(c[JSON_ROLE_ID]).name.capitalize(),
-                                                              Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize())
-            emb.add_field(name='HP', value=c[JSON_STAT_HP], inline=False)
-            emb.add_field(name='Attack', value=c[JSON_STAT_ATK], inline=False)
-            emb.add_field(name='Agility', value=c[JSON_STAT_AGI], inline=False)
-            emb.add_field(name='Defense', value=c[JSON_STAT_DEF], inline=False)
-            emb.add_field(name='Critical', value=c[JSON_STAT_CRIT], inline=False)
+            emb.add_field(name="Role", value=Role(c[JSON_ROLE_ID]).name.capitalize(), inline=True)
+            emb.add_field(name="Attribute", value=Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
             emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
             await self.send_message(message.channel, embed=emb)
 
     async def c_skills(self, message, children):
-        if children:
-            c = children[0]
+        for c in children:
             emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
             emb.set_author(name="{} - {}'s skills".format(c[JSON_NAME], c[JSON_EN_NAME]))
             emb.add_field(name="Basic Attack", value=c[JSON_SKILL1_DESC_EN] or c[JSON_SKILL1_DESC], inline=False)

@@ -33,7 +33,6 @@ class ChildrenManager(object):
             self.children_map[self.children[i][JSON_ID]] = i
         for nickname in self.nicknames:  # add nicknames to the children mapping
             self.children_map[nickname.lower()] = self.children_map[self.nicknames[nickname]]
-        print(self.children_map)
 
     def get_child_by_identifier(self, identifier):
         try:
