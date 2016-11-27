@@ -46,6 +46,8 @@ class DestinyChildBot(discord.Client):
 
         content = message.content.strip()  # type: str
 
+        if not content.startswith(self.config.command_trigger):
+            return
         left_index = 0
         activators = []
         while True:
@@ -69,7 +71,6 @@ class DestinyChildBot(discord.Client):
                 await self.send_message(message.channel, "Didn't recognize child name/id: {}".format(id))
             children.append(child)
 
-        if content.startswith(self.config.command_trigger):  # command parser
             command, *args = content[len(self.config.command_trigger):].split()
             i = 0
             l = len(args)

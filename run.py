@@ -1,5 +1,6 @@
 import traceback
 
+
 def main():
     print("Starting bot...")
     try:
