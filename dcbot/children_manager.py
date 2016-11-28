@@ -62,7 +62,6 @@ class ChildrenManager(object):
         except Exception:
             pass
 
-
     def save_nicknames_file(self):
         try:
             with open(self.nicknames_file, 'w', encoding="utf8") as f:

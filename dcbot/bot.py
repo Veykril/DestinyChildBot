@@ -13,11 +13,11 @@ import sys
 
 class DestinyChildBot(discord.Client):
     ele_color = {Attribute.fire.value: 0xFF331C, Attribute.dark.value: 0x7C4E98, Attribute.light.value: 0xC8C270,
-                 Attribute.forest.value: 0x00FF00, Attribute.water.value: 0x2691E4}
+                 Attribute.forest.value: 0x83A04C, Attribute.water.value: 0x2691E4}
 
     def __init__(self, config_file='config/config.ini'):
         self.config = Config(config_file)
-        self.children_mngr = ChildrenManager("resources/children.json")
+        self.children_mngr = ChildrenManager('resources/children.json')
         self.perm_mngr = PermissionManager()
         super().__init__()
 
@@ -28,6 +28,11 @@ class DestinyChildBot(discord.Client):
                 return await func(self, **kwargs)
             return  # skip if not in superuser list
         return wrapper
+
+    def get_img_url(self, child):
+        if self.config.use_inven:
+            return "{}{}.png".format(INVEN_IMAGE_URL, child[JSON_INVEN_ID])
+        return "{}{}.png".format(DROPBOX_IMAGE_URL, child[JSON_EN_NAME].lower().replace('\'', '').replace(' ', '_'))
 
     def run(self):
         super().run(self.config.token)
@@ -120,6 +125,12 @@ class DestinyChildBot(discord.Client):
         self.perm_mngr.add_superuser(args[0])
 
     @superuser
+    async def c_switch_url(self, message, args):
+        self.config.use_inven = not self.config.use_inven
+        await self.send_message(message.channel, "Using {} url for images."
+                                .format("inven" if self.config.use_inven else "dropbox"))
+
+    @superuser
     async def c_nickname(self, message, children, args):
         if len(args) == 1 and len(children) == 1:
             self.children_mngr.add_nickname(children[0][JSON_EN_NAME], args[0])
@@ -140,7 +151,7 @@ class DestinyChildBot(discord.Client):
                 emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
                 emb.add_field(name="Role", value=Role(c[JSON_ROLE_ID]).name.capitalize(), inline=True)
                 emb.add_field(name="Attribute", value=Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
-                emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
+                emb.set_thumbnail(url=self.get_img_url(c))
                 await self.send_message(message.channel, embed=emb)
 
     async def c_skills(self, message, children):
@@ -153,5 +164,5 @@ class DestinyChildBot(discord.Client):
                 emb.add_field(name="Slide", value=c[JSON_SKILL3_DESC_EN] or c[JSON_SKILL3_DESC], inline=False)
                 emb.add_field(name="Drive", value=c[JSON_SKILL4_DESC_EN] or c[JSON_SKILL4_DESC], inline=False)
                 emb.add_field(name="Leader", value=c[JSON_SKILL5_DESC_EN] or c[JSON_SKILL5_DESC], inline=False)
-                emb.set_thumbnail(url="{}{}_i.png".format(INVEN_IMAGE_URL, c[JSON_INVEN_ID]))
+                emb.set_thumbnail(url=self.get_img_url(c))
                 await self.send_message(message.channel, embed=emb)

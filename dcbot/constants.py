@@ -4,6 +4,7 @@ from enum import Enum
 VERSION = '0.1'
 
 INVEN_IMAGE_URL = "http://static.inven.co.kr/image_2011/site_image/game/minidata/99/"
+DROPBOX_IMAGE_URL = "https://dl.dropboxusercontent.com/u/123314639/db-use/"
 
 #  JSON RELATED
 JSON_ATTRIBUTE = "attribute"
@@ -11,7 +12,7 @@ JSON_ATTRIBUTE_ID = "attribute_id"
 JSON_AWAKEN_GROUP = "awaken_group"
 JSON_EN_NAME = "en_name"
 JSON_ENABLE_AWAKEN = "enable_awaken"
-JSON_ID = "idx"
+JSON_ID = "id"
 JSON_IDX = "idx"
 JSON_INVEN_ID = "inven_id"
 JSON_NAME = "name"
