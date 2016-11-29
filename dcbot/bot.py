@@ -77,44 +77,44 @@ class DestinyChildBot(discord.Client):
                 await self.send_message(message.channel, "Didn't recognize child name/id: {}".format(id))
             children.append(child)
 
-            command, *args = content[len(self.config.command_trigger):].split()
-            i = 0
-            l = len(args)
-            while i < l:
-                try:
-                    args[i] = int(args[i])
-                    i += 1
-                except ValueError:
-                    if args[i][0] == self.config.activator_left and args[i][-1] == self.config.activator_right:
-                        del args[i]
-                        l -= 1
-                    else:
-                        i += 1
-
+        command, *args = content[len(self.config.command_trigger):].split()
+        i = 0
+        l = len(args)
+        while i < l:
             try:
-                cmd_func = getattr(self, 'c_{}'.format(command), None)
-                if not cmd_func:
-                    return
+                args[i] = int(args[i])
+                i += 1
+            except ValueError:
+                if args[i][0] == self.config.activator_left and args[i][-1] == self.config.activator_right:
+                    del args[i]
+                    l -= 1
+                else:
+                    i += 1
 
-                parameters = inspect.signature(cmd_func).parameters.copy()
+        try:
+            cmd_func = getattr(self, 'c_{}'.format(command), None)
+            if not cmd_func:
+                return
 
-                func_kwargs = dict()
-                if parameters.pop('message', None):
-                    func_kwargs['message'] = message
-                if parameters.pop('channel', None):
-                    func_kwargs['channel'] = message.channel
-                if parameters.pop('author', None):
-                    func_kwargs['author'] = message.author
-                if parameters.pop('children', None):
-                    func_kwargs['children'] = children
-                if parameters.pop('args', None):
-                    func_kwargs['args'] = args
+            parameters = inspect.signature(cmd_func).parameters.copy()
 
-                print("Calling function:", cmd_func)
-                await cmd_func(**func_kwargs)
-            except Exception as e:
-                await self.send_message(message.channel, "```{}```".format(traceback.format_exc()))
-            return
+            func_kwargs = dict()
+            if parameters.pop('message', None):
+                func_kwargs['message'] = message
+            if parameters.pop('channel', None):
+                func_kwargs['channel'] = message.channel
+            if parameters.pop('author', None):
+                func_kwargs['author'] = message.author
+            if parameters.pop('children', None):
+                func_kwargs['children'] = children
+            if parameters.pop('args', None):
+                func_kwargs['args'] = args
+
+            print("Calling function:", cmd_func)
+            await cmd_func(**func_kwargs)
+        except Exception as e:
+            await self.send_message(message.channel, "```{}```".format(traceback.format_exc()))
+        return
 
     @superuser
     async def c_debug(self, message):
