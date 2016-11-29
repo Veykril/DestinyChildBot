@@ -5,10 +5,11 @@ from dcbot.constants import *
 
 from functools import wraps
 
+import datetime
 import discord
 import inspect
-import traceback
 import sys
+import traceback
 
 
 class DestinyChildBot(discord.Client):
@@ -143,6 +144,11 @@ class DestinyChildBot(discord.Client):
             self.children_mngr.remove_nickname(args[0])
         else:
             await self.send_message(message.channel, "Couldn't add nickname to child")
+
+    async def c_servertime(self, message):
+        utc = datetime.datetime.now(datetime.timezone.utc).time()
+        utc = utc.replace(hour=(utc.hour+9)%24)
+        await self.send_message(message.channel, "Current Server Time is: {}".format(utc.strftime("%H:%M:%S")))
 
     async def c_info(self, message, children):
         for c in children:
