@@ -32,7 +32,7 @@ class DestinyChildBot(discord.Client):
 
     def get_img_url(self, child):
         if self.config.use_inven:
-            return "{}{}.png".format(INVEN_IMAGE_URL, child[JSON_INVEN_ID])
+            return "{}{}_i.png".format(INVEN_IMAGE_URL, child[JSON_INVEN_ID])
         return "{}{}.png".format(DROPBOX_IMAGE_URL, child[JSON_EN_NAME].lower().replace('\'', '').replace(' ', '_'))
 
     def run(self):
@@ -75,7 +75,8 @@ class DestinyChildBot(discord.Client):
             child = self.children_mngr.get_child_by_identifier(identifier)
             if not child:
                 await self.send_message(message.channel, "Didn't recognize child name/id: {}".format(id))
-            children.append(child)
+            else:
+                children.append(child)
 
         command, *args = content[len(self.config.command_trigger):].split()
         i = 0
@@ -142,8 +143,14 @@ class DestinyChildBot(discord.Client):
     async def c_rnickname(self, message, args):
         if len(args) == 1:
             self.children_mngr.remove_nickname(args[0])
-        else:
-            await self.send_message(message.channel, "Couldn't add nickname to child")
+
+    @superuser
+    async def c_get_nicknames(self, message, children):
+        if not children:
+            await self.send_message(message.channel, "```{}```".format(self.children_mngr.nicknames))
+            return
+        for child in children:
+            await self.send_message(message.channel, "{}'s nicknames: {}".format(child[JSON_EN_NAME],self.children_mngr.get_nicknames(child[JSON_EN_NAME])))
 
     async def c_servertime(self, message):
         utc = datetime.datetime.now(datetime.timezone.utc).time()
@@ -152,23 +159,21 @@ class DestinyChildBot(discord.Client):
 
     async def c_info(self, message, children):
         for c in children:
-            if c:
-                emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
-                emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
-                emb.add_field(name="Role", value=Role(c[JSON_ROLE_ID]).name.capitalize(), inline=True)
-                emb.add_field(name="Attribute", value=Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
-                emb.set_thumbnail(url=self.get_img_url(c))
-                await self.send_message(message.channel, embed=emb)
+            emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
+            emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
+            emb.add_field(name="Role", value=Role(c[JSON_ROLE_ID]).name.capitalize(), inline=True)
+            emb.add_field(name="Attribute", value=Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
+            emb.set_thumbnail(url=self.get_img_url(c))
+            await self.send_message(message.channel, embed=emb)
 
     async def c_skills(self, message, children):
         for c in children:
-            if c:
-                emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
-                emb.set_author(name="{} - {}'s skills".format(c[JSON_NAME], c[JSON_EN_NAME]))
-                emb.add_field(name="Basic Attack", value=c[JSON_SKILL1_DESC_EN] or c[JSON_SKILL1_DESC], inline=False)
-                emb.add_field(name="Tap", value=c[JSON_SKILL2_DESC_EN] or c[JSON_SKILL2_DESC], inline=False)
-                emb.add_field(name="Slide", value=c[JSON_SKILL3_DESC_EN] or c[JSON_SKILL3_DESC], inline=False)
-                emb.add_field(name="Drive", value=c[JSON_SKILL4_DESC_EN] or c[JSON_SKILL4_DESC], inline=False)
-                emb.add_field(name="Leader", value=c[JSON_SKILL5_DESC_EN] or c[JSON_SKILL5_DESC], inline=False)
-                emb.set_thumbnail(url=self.get_img_url(c))
-                await self.send_message(message.channel, embed=emb)
+            emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
+            emb.set_author(name="{} - {}'s skills".format(c[JSON_NAME], c[JSON_EN_NAME]))
+            emb.add_field(name="Basic Attack", value=c[JSON_SKILL1_DESC_EN] or c[JSON_SKILL1_DESC], inline=False)
+            emb.add_field(name="Tap", value=c[JSON_SKILL2_DESC_EN] or c[JSON_SKILL2_DESC], inline=False)
+            emb.add_field(name="Slide", value=c[JSON_SKILL3_DESC_EN] or c[JSON_SKILL3_DESC], inline=False)
+            emb.add_field(name="Drive", value=c[JSON_SKILL4_DESC_EN] or c[JSON_SKILL4_DESC], inline=False)
+            emb.add_field(name="Leader", value=c[JSON_SKILL5_DESC_EN] or c[JSON_SKILL5_DESC], inline=False)
+            emb.set_thumbnail(url=self.get_img_url(c))
+            await self.send_message(message.channel, embed=emb)

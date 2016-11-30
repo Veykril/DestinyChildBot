@@ -62,6 +62,18 @@ class ChildrenManager(object):
         except Exception:
             pass
 
+    def get_nicknames(self, identifier):
+        try:  # check if it's the id as keyword
+            identifier = int(identifier)
+        except ValueError:
+            identifier = identifier.lower()
+        nicks = []
+        for k, v in self.nicknames.items():
+            if v == identifier:
+                nicks.append(k)
+        return nicks
+
+
     def save_nicknames_file(self):
         try:
             with open(self.nicknames_file, 'w', encoding="utf8") as f:
