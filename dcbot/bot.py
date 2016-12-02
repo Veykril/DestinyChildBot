@@ -127,7 +127,7 @@ class DestinyChildBot(discord.Client):
         self.perm_mngr.add_superuser(args[0])
 
     @superuser
-    async def c_switch_url(self, message, args):
+    async def c_switch_url(self, message):
         self.config.use_inven = not self.config.use_inven
         await self.send_message(message.channel, "Using {} url for images."
                                 .format("inven" if self.config.use_inven else "dropbox"))
@@ -151,6 +151,11 @@ class DestinyChildBot(discord.Client):
             return
         for child in children:
             await self.send_message(message.channel, "{}'s nicknames: {}".format(child[JSON_EN_NAME],self.children_mngr.get_nicknames(child[JSON_EN_NAME])))
+
+    @superuser
+    async def c_update_json(self, message, args):
+        success = self.children_mngr.update_children_by_url(args[0])
+        await self.send_message(message.channel, "Update succeeded" if success else "Update failed")
 
     async def c_servertime(self, message):
         utc = datetime.datetime.now(datetime.timezone.utc).time()
