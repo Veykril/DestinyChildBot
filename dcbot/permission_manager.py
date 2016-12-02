@@ -15,8 +15,9 @@ class PermissionManager(object):
     def is_superuser(self, user_id):
         return user_id in self.permissions
 
-    def add_superuser(self, user_id):
-        self.permissions.append(str(user_id))
+    def add_superuser(self, user):
+        user_id = [char for char in str(user) if char not in ['<', '@', '>']]
+        self.permissions.append(''.join(user_id))
         self.save_children_file()
 
     def save_children_file(self):

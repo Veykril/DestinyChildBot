@@ -8,6 +8,7 @@ from functools import wraps
 import datetime
 import discord
 import inspect
+import shlex
 import sys
 import traceback
 
@@ -78,7 +79,7 @@ class DestinyChildBot(discord.Client):
             else:
                 children.append(child)
 
-        command, *args = content[len(self.config.command_trigger):].split()
+        command, *args = shlex.split(content[len(self.config.command_trigger):])
         i = 0
         l = len(args)
         while i < l:
@@ -156,6 +157,9 @@ class DestinyChildBot(discord.Client):
     async def c_update_json(self, message, args):
         success = self.children_mngr.update_children_by_url(args[0])
         await self.send_message(message.channel, "Update succeeded" if success else "Update failed")
+
+    async def c_am_i_superuser(self, message):
+        await self.send_message(message.channel, "->{}".format(self.perm_mngr.is_superuser(message.author.id)))
 
     async def c_servertime(self, message):
         utc = datetime.datetime.now(datetime.timezone.utc).time()
