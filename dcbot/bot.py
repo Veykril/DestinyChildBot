@@ -134,9 +134,9 @@ class DestinyChildBot(discord.Client):
                                 .format("inven" if self.config.use_inven else "dropbox"))
 
     @superuser
-    async def c_nickname(self, message, children, args):
+    async def c_nickname(self, message, children, args): # change it so that it adds the nickname to the id rather then the english name, cause names can always change, ids do not, also check for duplicates etc
         if len(args) == 1 and len(children) == 1:
-            self.children_mngr.add_nickname(children[0][JSON_EN_NAME], args[0])
+            self.children_mngr.add_nickname(children[0], args[0])
         else:
             await self.send_message(message.channel, "Couldn't add nickname to child")
 
@@ -151,7 +151,7 @@ class DestinyChildBot(discord.Client):
             await self.send_message(message.channel, "```{}```".format(self.children_mngr.nicknames))
             return
         for child in children:
-            await self.send_message(message.channel, "{}'s nicknames: {}".format(child[JSON_EN_NAME],self.children_mngr.get_nicknames(child[JSON_EN_NAME])))
+            await self.send_message(message.channel, "{}'s nicknames: {}".format(child[JSON_EN_NAME], self.children_mngr.get_nicknames(child)))
 
     @superuser
     async def c_update_json(self, message, args):
@@ -175,8 +175,15 @@ class DestinyChildBot(discord.Client):
             emb.set_thumbnail(url=self.get_img_url(c))
             await self.send_message(message.channel, embed=emb)
 
-    async def c_skills(self, message, children):
+    async def c_skills(self, message, children, args):
         for c in children:
+            if args and args[0] == "korean":
+                c = c.copy()
+                c[JSON_SKILL1_DESC_EN] = ''
+                c[JSON_SKILL1_DESC_EN] = ''
+                c[JSON_SKILL1_DESC_EN] = ''
+                c[JSON_SKILL1_DESC_EN] = ''
+                c[JSON_SKILL1_DESC_EN] = ''
             emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
             emb.set_author(name="{} - {}'s skills".format(c[JSON_NAME], c[JSON_EN_NAME]))
             emb.add_field(name="Basic Attack", value=c[JSON_SKILL1_DESC_EN] or c[JSON_SKILL1_DESC], inline=False)

@@ -46,18 +46,11 @@ class ChildrenManager(object):
             pass
         return None
 
-    def add_nickname(self, identifier, nickname):
-        try:  # check if it's the id as keyword
-            identifier = int(identifier)
-        except ValueError:
-            identifier = identifier.lower()
-        print(identifier)
-        if identifier in self.children_map:
-            self.children_map[nickname.lower()] = self.children_map[identifier]
-            self.nicknames[nickname.lower()] = identifier
+    def add_nickname(self, child, nickname):
+        if nickname.lower() not in self.nicknames:
+            self.children_map[nickname.lower()] = self.children_map[child[JSON_ID]]
+            self.nicknames[nickname.lower()] = child[JSON_ID]
             self.save_nicknames_file()
-            return True
-        return False
 
     def remove_nickname(self, nickname):
         try:
@@ -67,14 +60,10 @@ class ChildrenManager(object):
         except Exception:
             pass
 
-    def get_nicknames(self, identifier):
-        try:  # check if it's the id as keyword
-            identifier = int(identifier)
-        except ValueError:
-            identifier = identifier.lower()
+    def get_nicknames(self, child):
         nicks = []
         for k, v in self.nicknames.items():
-            if v == identifier:
+            if v == child[JSON_ID]:
                 nicks.append(k)
         return nicks
 
