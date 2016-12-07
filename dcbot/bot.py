@@ -3,6 +3,8 @@ from dcbot.children_manager import ChildrenManager
 from dcbot.permission_manager import PermissionManager
 from dcbot.constants import *
 
+from discord import game
+
 from functools import wraps
 
 import datetime
@@ -44,6 +46,7 @@ class DestinyChildBot(discord.Client):
 
     async def on_ready(self):
         print("Successfully connected!")
+        await self.change_presence(game=game.Game(name="!dchelp"))
 
     async def on_message(self, message):
         print("[{}]@{}:{}".format(message.server, message.channel, message.content)
@@ -146,17 +149,16 @@ class DestinyChildBot(discord.Client):
             self.children_mngr.remove_nickname(args[0])
 
     @superuser
+    async def c_update_json(self, message, args):
+        success = self.children_mngr.update_children_by_url(args[0])
+        await self.send_message(message.channel, "Update succeeded" if success else "Update failed")
+
     async def c_get_nicknames(self, message, children):
         if not children:
             await self.send_message(message.channel, "```{}```".format(self.children_mngr.nicknames))
             return
         for child in children:
             await self.send_message(message.channel, "{}'s nicknames: {}".format(child[JSON_EN_NAME], self.children_mngr.get_nicknames(child)))
-
-    @superuser
-    async def c_update_json(self, message, args):
-        success = self.children_mngr.update_children_by_url(args[0])
-        await self.send_message(message.channel, "Update succeeded" if success else "Update failed")
 
     async def c_am_i_superuser(self, message):
         await self.send_message(message.channel, "->{}".format(self.perm_mngr.is_superuser(message.author.id)))
@@ -165,6 +167,18 @@ class DestinyChildBot(discord.Client):
         utc = datetime.datetime.now(datetime.timezone.utc).time()
         utc = utc.replace(hour=(utc.hour+9)%24)
         await self.send_message(message.channel, "Current Server Time is: {}".format(utc.strftime("%H:%M:%S")))
+
+    async def c_dchelp(self, message):
+        msg_content = "Normal Commands\n" \
+                      "  {c}info [child]\n" \
+                      "  {c}skills [child]\n" \
+                      "  {c}servertime\n" \
+                      "  {c}am_i_superuser\n" \
+                      "  {c}get_nicknames [child]\n" \
+                      "Superuser only\n" \
+                      "  {c}rnickname nick\n" \
+                      "  {c}nickname [child] nick\n".format(c=self.config.command_trigger)
+        await self.send_message(message.channel, msg_content)
 
     async def c_info(self, message, children):
         for c in children:
