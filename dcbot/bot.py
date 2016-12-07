@@ -82,7 +82,7 @@ class DestinyChildBot(discord.Client):
             else:
                 children.append(child)
 
-        command, *args = shlex.split(content[len(self.config.command_trigger):])
+        command, *args = shlex.split(content[len(self.config.command_trigger):].replace('\'', '\\\''))
         i = 0
         l = len(args)
         while i < l:
@@ -94,6 +94,7 @@ class DestinyChildBot(discord.Client):
                     del args[i]
                     l -= 1
                 else:
+                    args[i] = args[i].replace('\\\'', '\'')
                     i += 1
 
         try:
