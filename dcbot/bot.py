@@ -183,7 +183,8 @@ class DestinyChildBot(discord.Client):
 
     async def c_info(self, message, children):
         for c in children:
-            emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
+            emb = discord.Embed(type='rich', url=WEB_CHILDREN_URL + str(c[JSON_INVEN_ID]),
+                                colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
             emb.set_author(name="{} - {}[{}⭐]".format(c[JSON_NAME], c[JSON_EN_NAME], c[JSON_RARITY]))
             emb.add_field(name="Role", value=Role(c[JSON_ROLE_ID]).name.capitalize(), inline=True)
             emb.add_field(name="Attribute", value=Attribute(c[JSON_ATTRIBUTE_ID]).name.capitalize(), inline=True)
@@ -195,11 +196,12 @@ class DestinyChildBot(discord.Client):
             if args and args[0] == "korean":
                 c = c.copy()
                 c[JSON_SKILL1_DESC_EN] = ''
-                c[JSON_SKILL1_DESC_EN] = ''
-                c[JSON_SKILL1_DESC_EN] = ''
-                c[JSON_SKILL1_DESC_EN] = ''
-                c[JSON_SKILL1_DESC_EN] = ''
-            emb = discord.Embed(type='rich', colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
+                c[JSON_SKILL2_DESC_EN] = ''
+                c[JSON_SKILL3_DESC_EN] = ''
+                c[JSON_SKILL4_DESC_EN] = ''
+                c[JSON_SKILL5_DESC_EN] = ''
+            emb = discord.Embed(type='rich', url=WEB_CHILDREN_URL + str(c[JSON_INVEN_ID]),
+                                colour=DestinyChildBot.ele_color[c[JSON_ATTRIBUTE_ID]])
             emb.set_author(name="{} - {}'s skills".format(c[JSON_NAME], c[JSON_EN_NAME]))
             emb.add_field(name="Basic Attack", value=c[JSON_SKILL1_DESC_EN] or c[JSON_SKILL1_DESC], inline=False)
             emb.add_field(name="Tap", value=c[JSON_SKILL2_DESC_EN] or c[JSON_SKILL2_DESC], inline=False)

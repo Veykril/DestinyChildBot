@@ -5,6 +5,7 @@ VERSION = '0.1'
 
 INVEN_IMAGE_URL = "http://static.inven.co.kr/image_2011/site_image/game/minidata/99/"
 DROPBOX_IMAGE_URL = "https://dl.dropboxusercontent.com/u/123314639/db-use/"
+WEB_CHILDREN_URL = "http://destinychild.inven.co.kr/dataninfo/child/detail.php?d=99&c="
 
 #  JSON RELATED
 JSON_ATTRIBUTE = "attribute"
