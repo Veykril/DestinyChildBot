@@ -119,7 +119,10 @@ class DestinyChildBot(discord.Client):
             print("Calling function:", cmd_func)
             await cmd_func(**func_kwargs)
         except Exception as e:
-            await self.send_message(message.channel, "```{}```".format(traceback.format_exc()))
+            if self.config.debug:
+                await self.send_message(message.channel, "```{}```".format(traceback.format_exc()))
+            else:
+                await self.send_message(message.channel, "Exception caught -> `{}`".format(e.__class__.__name__))
         return
 
     @superuser
@@ -175,11 +178,16 @@ class DestinyChildBot(discord.Client):
                       "  {c}skills [child]\n" \
                       "  {c}servertime\n" \
                       "  {c}am_i_superuser\n" \
+                      "  {c}inven [child]\n" \
                       "  {c}get_nicknames [child]\n" \
                       "Superuser only\n" \
                       "  {c}rnickname nick\n" \
                       "  {c}nickname [child] nick\n".format(c=self.config.command_trigger)
         await self.send_message(message.channel, msg_content)
+
+    async def c_inven(self, message, children):
+        for c in children:
+            await self.send_message(message.channel, "{} -> {}".format(c[JSON_EN_NAME], WEB_CHILDREN_URL + str(c[JSON_INVEN_ID])))
 
     async def c_info(self, message, children):
         for c in children:
